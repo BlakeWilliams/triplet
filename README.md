@@ -1,8 +1,7 @@
 # Triplet
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/triplet`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A simple Ruby DSL for defining templates. (Maybe) useful for defining single file [view
+components](https://github.com/github/view_component).
 
 ## Installation
 
@@ -12,17 +11,59 @@ Add this line to your application's Gemfile:
 gem 'triplet'
 ```
 
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install triplet
+And then execute: `bundle install` in your shell.
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+nav_items = { "home": "/", "Sign Up": "/sign-up" }
+template = Template.new # Create a new template
+
+template.eval do
+  nav class: "max-w-3xl mx-auto flex" do
+    h1(class: "font-3xl") { "My App" }
+
+    ul class: "" do
+      nav_items.each do |name, link|
+        li class: "bold font-xl" do
+          a href: link.html_safe { name }
+        end
+      end
+    end
+  end
+
+  text "Hello"
+  span(class: "bold") { "world" }
+end
+```
+
+Will output the equivalent HTML:
+
+```html
+<nav class="max-w-3xl mx-auto flex">
+   <h1 class="font-3xl">My App</h1>
+   <ul class="">
+      <li class="bold font-xl"><a href="/"></a></li>
+      <li class="bold font-xl"><a href="/sign-up"></a></li>
+   </ul>
+</nav>
+Hello<span class="bold">world</span>
+```
+
+If you need a custom tag, you can use the `tag` helper method:
+
+```ruby
+tag("my-tag", "custom-attribute" => "value") { "body content" }
+# <my-tag custom-attribute="value">body content</my-tag>
+```
+
+To output strings with no wrapping tag, use the `text` helper:
+
+```
+text "hello "
+b { "world" }
+# hello <b>world</b>
+```
 
 ## Development
 
