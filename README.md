@@ -17,9 +17,8 @@ And then execute: `bundle install` in your shell.
 
 ```ruby
 nav_items = { "home": "/", "Sign Up": "/sign-up" }
-template = Template.new # Create a new template
 
-template.eval do
+Triplet.template do
   nav class: "max-w-3xl mx-auto flex" do
     h1(class: "font-3xl") { "My App" }
 

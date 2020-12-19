@@ -10,6 +10,6 @@ module Triplet
   class Error < StandardError; end
 
   def self.template(&block)
-    Template.new.run(&block)
+    Template.new(&block).to_s
   end
 end
