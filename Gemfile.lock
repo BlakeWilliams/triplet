@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    triplet (0.1.2)
+    triplet (0.2.0)
       actionview (>= 5.0.0, < 7.0)
 
 GEM
