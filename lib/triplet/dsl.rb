@@ -30,7 +30,7 @@ module Triplet
     # TODO handle VOID_TAGS specially
     TAGS.each do |tag|
       define_method tag do |attrs = {}, &block|
-        tag(tag, attrs, &block)
+        html_tag(tag, attrs, &block)
       end
     end
 
@@ -38,7 +38,7 @@ module Triplet
       @output_buffer << text
     end
 
-    def tag(tag, attrs = {}, &block)
+    def html_tag(tag, attrs = {}, &block)
       @output_buffer.safe_concat "<#{tag}"
       @output_buffer.safe_concat " " unless attrs.empty?
       _write_attributes(attrs)

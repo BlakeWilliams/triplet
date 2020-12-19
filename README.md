@@ -49,10 +49,10 @@ Will output the equivalent HTML:
 Hello<span class="bold">world</span>
 ```
 
-If you need a custom tag, you can use the `tag` helper method:
+If you need a custom tag, you can use the `html_tag` helper method:
 
 ```ruby
-tag("my-tag", "custom-attribute" => "value") { "body content" }
+html_tag("my-tag", "custom-attribute" => "value") { "body content" }
 # <my-tag custom-attribute="value">body content</my-tag>
 ```
 
