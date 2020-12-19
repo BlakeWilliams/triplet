@@ -59,10 +59,28 @@ tag("my-tag", "custom-attribute" => "value") { "body content" }
 
 To output strings with no wrapping tag, use the `text` helper:
 
-```
+```ruby
 text "hello "
 b { "world" }
 # hello <b>world</b>
+```
+
+### View Component Support
+
+To use in view components, include the `Triplet::ViewComponent` module and
+define a `template` method. The module will handle the rest.
+
+```ruby
+class NavComponent < ::ViewComponent::Base
+  include Triplet::ViewComponent
+
+  def template
+    h1 { "hello world" }
+
+    render NavItemComponent.new(title: "Home", path: "/")
+    render NavItemComponent.new(title: "Pricing", path: "/pricing")
+  end
+end
 ```
 
 ## Development

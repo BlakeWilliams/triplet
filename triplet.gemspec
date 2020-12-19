@@ -28,4 +28,8 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "actionview", [">= 5.0.0", "< 7.0"]
   spec.add_development_dependency "pry", "~> 0.13"
+  spec.add_development_dependency "view_component", "~> 2.23"
+  spec.add_development_dependency "rails", ">= 6.1"
+  spec.add_development_dependency "actionpack", "> 6.0"
+  spec.add_development_dependency "capybara", "~> 3.0"
 end
