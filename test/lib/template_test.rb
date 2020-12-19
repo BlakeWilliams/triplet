@@ -14,6 +14,40 @@ module Triplet
       assert_equal '<h1 class="font-xl">world</h1>', template.to_s
     end
 
+    def test_with_conditional
+      logged_in = false
+
+      template = Template.new do
+        [
+          logged_in ? nil : div {[
+            a(href: "/sign-up") { "Sign up!" }
+          ]},
+          h1(class: "font-xl") {
+            "world"
+          }
+        ]
+      end
+
+      assert_equal '<div><a href="/sign-up">Sign up!</a></div><h1 class="font-xl">world</h1>', template.to_s
+    end
+
+    def test_with_nil_conditional
+      logged_in = true
+
+      template = Template.new do
+        [
+          logged_in ? nil : div {[
+            a(href: "/sign-up") { "Sign up!" }
+          ]},
+          h1(class: "font-xl") {
+            "world"
+          }
+        ]
+      end
+
+      assert_equal '<h1 class="font-xl">world</h1>', template.to_s
+    end
+
     def test_works_with_html_safe
       template = Template.new do
         h1('data-attribute': "{'foo'}".html_safe) {
