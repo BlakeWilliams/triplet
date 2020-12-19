@@ -19,7 +19,7 @@ module Triplet
     class MyViewComponent < ::ViewComponent::Base
       include Triplet::ViewComponent
 
-      def template
+      def call
         h1 { "hello world" }
       end
     end
@@ -27,7 +27,7 @@ module Triplet
     class MyNestedComponent < ::ViewComponent::Base
       include Triplet::ViewComponent
 
-      def template
+      def call
         div do
           render MyViewComponent.new
         end

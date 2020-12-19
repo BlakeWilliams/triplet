@@ -68,13 +68,13 @@ b { "world" }
 ### View Component Support
 
 To use in view components, include the `Triplet::ViewComponent` module and
-define a `template` method. The module will handle the rest.
+define a `call` method. The module will handle the rest.
 
 ```ruby
 class NavComponent < ::ViewComponent::Base
   include Triplet::ViewComponent
 
-  def template
+  def call
     h1 { "hello world" }
 
     render NavItemComponent.new(title: "Home", path: "/")

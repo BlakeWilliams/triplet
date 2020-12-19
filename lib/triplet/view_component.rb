@@ -6,15 +6,9 @@ module Triplet
   module ViewComponent
     include Triplet::DSL
 
-    def self.included(klass)
-      klass.define_method(:call) do
-        @output_buffer ||= ActionView::OutputBuffer.new
-        template
-      end
-    end
-
-    def template
-      raise "#template method not implemented"
+    def render_in(view_context, &block)
+      @output_buffer ||= ActionView::OutputBuffer.new
+      super(view_context, &block)
     end
   end
 end
