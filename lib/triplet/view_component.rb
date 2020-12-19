@@ -5,10 +5,12 @@ require "view_component"
 module Triplet
   module ViewComponent
     include Triplet::DSL
+    alias_method :template_tag, :template
 
-    def render_in(view_context, &block)
-      @output_buffer ||= ActionView::OutputBuffer.new
-      super(view_context, &block)
+    def self.included(klass)
+      klass.define_method(:call) do
+        render_triplet(template)
+      end
     end
   end
 end

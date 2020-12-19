@@ -3,8 +3,8 @@
 require "action_view" # Necessary for output buffer
 
 require "triplet/version"
-require "triplet/template"
 require "triplet/dsl"
+require "triplet/template"
 
 module Triplet
   class Error < StandardError; end

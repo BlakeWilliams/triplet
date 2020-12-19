@@ -3,6 +3,14 @@
 A simple Ruby DSL for defining templates. (Maybe) useful for defining single file [view
 components](https://github.com/github/view_component).
 
+Features:
+
+* Easy to use "AST" for defining HTML tags. `[:a, { href: "/" }, "Home"]`
+* DSL methods to make defining triplets easier. `a(href: "/") { "Home" }`
+* Supports Rails helper methods. e.g. `form_for`, `text_field_tag`, `link_to`,
+  etc.
+* View Component support via `include Triplet::ViewComponent`
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -18,22 +26,18 @@ And then execute: `bundle install` in your shell.
 ```ruby
 nav_items = { "home": "/", "Sign Up": "/sign-up" }
 
-Triplet.template do
-  nav class: "max-w-3xl mx-auto flex" do
-    h1(class: "font-3xl") { "My App" }
-
-    ul class: "" do
-      nav_items.each do |name, link|
-        li class: "bold font-xl" do
-          a href: link.html_safe { name }
-        end
+Triplet.template {[
+  nav(class: "max-w-3xl mx-auto flex") {[
+    h1(class: "font-3xl") { "My App" },
+    ul(class: "") {[
+      nav_items.map do |name, link|
+        li(class: "bold font-xl") {[ a(href: link.html_safe) { name } ]}
       end
-    end
-  end
-
-  text "Hello"
-  span(class: "bold") { "world" }
-end
+    ]}
+  ]},
+  "Hello",
+  span(class: "bold") { "world" },
+]}
 ```
 
 Will output the equivalent HTML:
@@ -42,26 +46,25 @@ Will output the equivalent HTML:
 <nav class="max-w-3xl mx-auto flex">
    <h1 class="font-3xl">My App</h1>
    <ul class="">
-      <li class="bold font-xl"><a href="/"></a></li>
-      <li class="bold font-xl"><a href="/sign-up"></a></li>
+      <li class="bold font-xl"><a href="/">home</a></li>
+      <li class="bold font-xl"><a href="/sign-up">Sign Up</a></li>
    </ul>
 </nav>
 Hello<span class="bold">world</span>
 ```
 
-If you need a custom tag, you can use the `html_tag` helper method:
+The tag methods (e.g. `nav`, `h1`, `p`) are helpers that turn Ruby code into
+triples, or 3 element arrays.
+
+e.g. `p(class: "font-xl") { "hello world!" }` becomes `[:p, { class: "font-xl" }, "hello world!"]`
+
+The two formats can be used interchangeably in templates.
+
+If you need a custom tag, you can return a triplet directly:
 
 ```ruby
-html_tag("my-tag", "custom-attribute" => "value") { "body content" }
+[:"my-tag", { "custom-attribute" => "value" }, ["body content"]]
 # <my-tag custom-attribute="value">body content</my-tag>
-```
-
-To output strings with no wrapping tag, use the `text` helper:
-
-```ruby
-text "hello "
-b { "world" }
-# hello <b>world</b>
 ```
 
 ### View Component Support
@@ -70,14 +73,15 @@ To use in view components, include the `Triplet::ViewComponent` module and
 define a `call` method. The module will handle the rest.
 
 ```ruby
-class NavComponent < ::ViewComponent::Base
+class NavComponent < ViewComponent::Base
   include Triplet::ViewComponent
 
-  def call
-    h1 { "hello world" }
-
-    render NavItemComponent.new(title: "Home", path: "/")
-    render NavItemComponent.new(title: "Pricing", path: "/pricing")
+  def template
+    [
+      h1 { "hello world" },
+      render NavItemComponent.new(title: "Home", path: "/"),
+      render NavItemComponent.new(title: "Pricing", path: "/pricing")
+    ]
   end
 end
 ```

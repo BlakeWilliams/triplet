@@ -2,6 +2,9 @@
 
 module Triplet
   module DSL
+    include ActionView::Helpers::CaptureHelper
+    include ActionView::Helpers::TagHelper
+
     TAGS = [
       :a, :abbr, :address, :area, :article, :aside, :audio,
       :b, :base, :bdi, :bdo, :blockquote, :body, :br, :button,
@@ -30,61 +33,51 @@ module Triplet
     # TODO handle VOID_TAGS specially
     TAGS.each do |tag|
       define_method tag do |attrs = {}, &block|
-        html_tag(tag, attrs, &block)
+        [
+          tag,
+          attrs,
+          block&.call,
+        ]
       end
     end
 
-    def text(text)
-      @output_buffer << text
-    end
+    def render_triplet(triplet)
+      if triplet.is_a?(String)
+        triplet
+      elsif triplet.is_a?(Array)
+        # If the array size is 3 and the first object is a
+        # symbol, it's likely a renderable triplet
+        if triplet.length == 3 && triplet[0].is_a?(Symbol)
+          tag, attrs, children = triplet
 
-    def html_tag(tag, attrs = {}, &block)
-      @output_buffer.safe_concat "<#{tag}"
-      @output_buffer.safe_concat " " unless attrs.empty?
-      _write_attributes(attrs)
-      @output_buffer.safe_concat ">"
-
-      if block
-        value = nil
-        result = capture do
-          value = block.call
-        end
-
-        # Supports returning a string directlycfrom blocks
-        if result.length == 0 && value
-          @output_buffer << value
+          content_tag(tag, attrs) do
+            if children.is_a?(Array)
+              safe_join(children.map { |c| render_triplet(c) }, "")
+            else
+              render_triplet(children)
+            end
+          end
         else
-          @output_buffer << result
+          safe_join(triplet.map { |c| render_triplet(c) }, "")
         end
+      else
+        triplet.to_s
       end
-
-      @output_buffer.safe_concat "</#{tag}>"
     end
 
     private
 
-    def _write_attributes(attrs)
-      attrs.each_with_index do |(k,v), i|
-        @output_buffer << k.to_s
-        @output_buffer.safe_concat '="'
-        @output_buffer << v.to_s
-        @output_buffer.safe_concat '"'
-        @output_buffer.safe_concat ' ' if i != attrs.length - 1
-      end
-    end
+    attr_accessor :output_buffer
 
-    def capture
-      original_output_buffer = @output_buffer
-
-      begin
-        @output_buffer = ActionView::OutputBuffer.new
-        yield
-        @output_buffer
-      ensure
-        @output_buffer = original_output_buffer
+    # Override capture to support triplets
+    def capture(*args)
+      value = nil
+      buffer = with_output_buffer { value = yield(*args) }
+      if (string = buffer.presence || value) && string.is_a?(String)
+        ERB::Util.html_escape string
+      elsif value.is_a?(Array) # This is the only change, adds triplet support
+        render_triplet(value)
       end
     end
   end
 end
-
-Triplet::Template.include(Triplet::DSL)

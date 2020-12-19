@@ -6,9 +6,9 @@ module Triplet
   class TemplateTest < Minitest::Test
     def test_basic_template
       template = Template.new do
-        h1 class: "font-xl" do
-          text "world"
-        end
+        h1(class: "font-xl") {
+          "world"
+        }
       end
 
       assert_equal '<h1 class="font-xl">world</h1>', template.to_s
@@ -16,9 +16,9 @@ module Triplet
 
     def test_works_with_html_safe
       template = Template.new do
-        h1 'data-attribute': "{'foo'}".html_safe do
-          text "world"
-        end
+        h1('data-attribute': "{'foo'}".html_safe) {
+          "world"
+        }
       end
 
       assert_equal '<h1 data-attribute="{\'foo\'}">world</h1>', template.to_s
@@ -28,9 +28,9 @@ module Triplet
       title = "world"
 
       template = Template.new do
-        h1 'data-attribute': "{'foo'}".html_safe do
-          text title
-        end
+        h1('data-attribute': "{'foo'}".html_safe) {
+          title
+        }
       end
 
       assert_equal '<h1 data-attribute="{\'foo\'}">world</h1>', template.to_s
@@ -38,11 +38,9 @@ module Triplet
 
     def test_works_with_nested_tags
       template = Template.new do
-        h1 'data-attribute': "{'foo'}".html_safe do
-          a href: "/home" do
-            span { "My App" }
-          end
-        end
+        h1('data-attribute': "{'foo'}".html_safe) {[
+          a(href: "/home") {[ span { "My App" } ]}
+        ]}
       end
 
       assert_equal '<h1 data-attribute="{\'foo\'}"><a href="/home"><span>My App</span></a></h1>', template.to_s
@@ -50,13 +48,23 @@ module Triplet
 
     def test_works_with_multiple_lines
       template = Template.new do
-        h1 'data-attribute': "{'foo'}".html_safe do
-          a href: "/home" do
+        h1('data-attribute': "{'foo'}".html_safe) {[
+          a(href: "/home") {[
             span { "My App" }
-          end
+          ]},
+          "tagline"
+        ]}
+      end
 
-          text "tagline"
-        end
+      assert_equal '<h1 data-attribute="{\'foo\'}"><a href="/home"><span>My App</span></a>tagline</h1>', template.to_s
+    end
+
+    def test_works_with_mixing_syntax
+      template = Template.new do
+        h1('data-attribute': "{'foo'}".html_safe) {[
+          [:a, { href: "/home" }, [span { "My App" }]],
+          "tagline"
+        ]}
       end
 
       assert_equal '<h1 data-attribute="{\'foo\'}"><a href="/home"><span>My App</span></a>tagline</h1>', template.to_s
@@ -72,21 +80,17 @@ module Triplet
         end
 
         def to_s
-          nav do
-            @nav_items.each do |title, url|
-              nav_item(url) do
+          render_triplet nav {[
+            @nav_items.map do |title, url|
+              nav_item(url) {[
                 b { title }
-              end
+              ]}
             end
-          end
-
-          @output_buffer
+          ]}
         end
 
         def nav_item(url, &block)
-          a href: url.html_safe, class: "text-xl mr-3" do
-            yield
-          end
+          a(href: url.html_safe, class: "text-xl mr-3", &block)
         end
       end
 

@@ -1,0 +1,3 @@
+<div>
+  <HelloRenderable name={"renderable"}/>
+</div>

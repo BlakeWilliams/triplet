@@ -2,10 +2,12 @@
 
 module Triplet
   class Template
+    include Triplet::DSL
+
     def initialize(output_buffer = ActionView::OutputBuffer.new, &block)
       @output_buffer = output_buffer
 
-      instance_eval(&block)
+      @output_buffer << render_triplet(instance_eval(&block))
     end
 
     def to_s
